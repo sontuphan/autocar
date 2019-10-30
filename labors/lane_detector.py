@@ -1,6 +1,7 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.cluster import KMeans
 
 
 def do_canny(frame):
@@ -23,35 +24,45 @@ def do_rectangle(frame):
     return rectangle
 
 
-def calculate_lines(frame, lines):
-    left = []
-    right = []
+def calculate_lines(lines):
+    re = np.array([])
     for line in lines:
-        x1, y1, x2, y2 = line.reshape(4)
-        parameters = np.polyfit((x1, x2), (y1, y2), 1)
-        slope = parameters[0]
-        y_intercept = parameters[1]
-        if slope < 0:
-            left.append((slope, y_intercept))
+        x_1, y_1, x_2, y_2 = line.reshape(4)
+        parameters = np.array([np.polyfit((x_1, x_2), (y_1, y_2), 1)])
+        if(len(re) == 0):
+            re = parameters
         else:
-            right.append((slope, y_intercept))
-    if(len(left) != 0):
-        left = np.average(left, axis=0)
-        left = calculate_coordinates(frame, left)
-    if(len(right) != 0):
-        right = np.average(right, axis=0)
-        right = calculate_coordinates(frame, right)
-    return np.array([left, right])
+            re = np.append(re, parameters, axis=0)
+    re = calculate_by_kmeans(re)
+    return re
 
 
-def calculate_coordinates(frame, parameters):
+def calculate_by_kmeans(points):
+    kmeans = KMeans(n_clusters=2, random_state=0).fit(points)
+    return kmeans.cluster_centers_
+
+
+def calculate_coordinates(frame, lines):
+
+    def sub_calculate_coordinates(height, line):
+        if(len(line) == 0):
+            return np.array([0, 0, 0, 0])
+        slope, intercept = line
+        y1 = height
+        y2 = int(height/2)
+        x1 = int((y1 - intercept) / slope)
+        x2 = int((y2 - intercept) / slope)
+        return np.array([x1, y1, x2, y2])
+
     height = frame.shape[0]
-    slope, intercept = parameters
-    y1 = height
-    y2 = int(height/2)
-    x1 = int((y1 - intercept) / slope)
-    x2 = int((y2 - intercept) / slope)
-    return np.array([x1, y1, x2, y2])
+    lines_in_coordinate = np.array([])
+    for line in lines:
+        temp = np.array([sub_calculate_coordinates(height, line)])
+        if(len(lines_in_coordinate) == 0):
+            lines_in_coordinate = temp
+        else:
+            lines_in_coordinate = np.append(lines_in_coordinate, temp, axis=0)
+    return lines_in_coordinate
 
 
 def visualize_lines(frame, lines):
@@ -72,7 +83,7 @@ def main():
         # plt.show()
 
         segment = do_rectangle(canny)
-        hough = cv.HoughLinesP(segment, 1, np.pi / 90, 50,
+        hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                np.array([]), minLineLength=100, maxLineGap=100)
         # Test run
         # test = np.array([])
@@ -84,8 +95,9 @@ def main():
         # cvlines = visualize_lines(frame, test)
 
         # Real run
-        lines = calculate_lines(frame, hough)
-        cvlines = visualize_lines(frame, lines)
+        lines = calculate_lines(hough)
+        lines_in_coordinate = calculate_coordinates(frame, lines)
+        cvlines = visualize_lines(frame, lines_in_coordinate)
 
         # Visualize
         output = cv.addWeighted(frame, 0.9, cvlines, 1, 1)
