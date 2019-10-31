@@ -24,6 +24,8 @@ def slopes_to_points(frame, lines):
 
 
 def point_to_slope(line):
+    if len(line) == 0:
+        return np.array([])
     x_1, y_1, x_2, y_2 = line.reshape(4)
     return np.polyfit((x_1, x_2), (y_1, y_2), 1)
 
