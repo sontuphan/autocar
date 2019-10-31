@@ -1,6 +1,9 @@
 import numpy as np
+import warnings
 from numpy import linalg as la
 from sklearn.cluster import KMeans
+
+warnings.simplefilter('ignore', np.RankWarning)
 
 
 def slope_to_point(height, line):

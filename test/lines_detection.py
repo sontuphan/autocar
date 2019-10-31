@@ -40,8 +40,6 @@ def test_by_kmeans():
         cv_lines = visualization.draw_lines_in_frame(frame, lines)
         output = cv.addWeighted(frame, 0.9, cv_lines, 1, 1)
         cv.imshow("Kmeans", output)
-        reward = rl.reward(frame)
-        print(reward)
 
         if cv.waitKey(10) & 0xFF == ord('q'):
             break
