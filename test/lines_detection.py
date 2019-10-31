@@ -35,6 +35,7 @@ def test_by_kmeans():
                                np.array([]), minLineLength=100, maxLineGap=100)
         lines = line.merge_by_kmeans(hough)
         lines = line.slopes_to_points(frame, lines)
+        lines = line.colapse_neighbours(500, lines)
         cv_lines = visualization.draw_lines_in_frame(frame, lines)
 
         output = cv.addWeighted(frame, 0.9, cv_lines, 1, 1)
