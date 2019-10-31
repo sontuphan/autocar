@@ -75,7 +75,7 @@ def visualize_lines(frame, lines):
 
 
 def main():
-    cap = cv.VideoCapture("data/autocar.mp4")
+    cap = cv.VideoCapture("data/autocar3.mp4")
     while (cap.isOpened()):
         ret, frame = cap.read()
         canny = do_canny(frame)
@@ -101,7 +101,7 @@ def main():
 
         # Visualize
         output = cv.addWeighted(frame, 0.9, cvlines, 1, 1)
-        cv.imshow("Realtime", output)
+        cv.imshow("Realtime", canny)
 
         if cv.waitKey(10) & 0xFF == ord('q'):
             break
