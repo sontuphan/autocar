@@ -1,5 +1,4 @@
 import cv2 as cv
-import time
 from libs import rl
 
 
@@ -21,4 +20,3 @@ def test_mdp():
         prev_state = current_state
         prev_action = next_action
         prev_value = value
-        # time.sleep(1)
