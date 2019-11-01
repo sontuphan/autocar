@@ -1,17 +1,22 @@
 import cv2 as cv
 import threading
 import time
+import requests
 import numpy as np
 from queue import Queue
 
 
 class Car:
-    def __init__(self, host, port=8080):
+    def __init__(self, host):
         self.host = host
-        self.port = port
+        self.stream_port = 8080
+        self.cmd_port = 8000
 
-    def get_url(self, action):
-        return self.host + ":" + str(self.port) + '/?action=' + action
+    def get_stream_url(self):
+        return self.host + ":" + str(self.stream_port) + '/?action=stream'
+
+    def get_cmd_url(self, action):
+        return self.host + ":" + str(self.cmd_port) + '/run/?action=' + action
 
     def play(self, q, sec):
         while True:
@@ -32,7 +37,7 @@ class Car:
             q.put(frame)
 
     def get_camera(self, rate):
-        url = self.get_url('stream')
+        url = self.get_stream_url()
         q = Queue(2)  # Buffer only 2 frames
         stream = cv.VideoCapture(url)
         buffer_thread = threading.Thread(target=self.buffer, args=(q, stream,))
@@ -41,9 +46,30 @@ class Car:
         play_thread.start()
 
     def get_snapshot(self):
-        url = self.get_url('stream')
+        url = self.get_stream_url()
         q = Queue(5)
         stream = cv.VideoCapture(url)
         buffer_thread = threading.Thread(target=self.buffer, args=(q, stream,))
         buffer_thread.start()
         return q
+
+    def start(self):
+        self.run_action("forward")
+
+    def stop(self):
+        self.run_action("stop")
+
+    def left(self):
+        self.run_action("fwleft")
+
+    def right(self):
+        self.run_action("fwright")
+
+    def straight(self):
+        self.run_action("fwstraight")
+
+    def run_action(self, action):
+        # bwready | forward | backward | stop
+        # fwready | fwleft | fwright |  fwstraight
+        url = self.get_cmd_url(action)
+        requests.get(url)

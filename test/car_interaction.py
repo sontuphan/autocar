@@ -17,3 +17,19 @@ def test_snapshot():
         plt.imshow(buffer.get())
         plt.show(block=False)
         plt.pause(0.01)
+
+def test_action():
+    picar.start()
+    time.sleep(1)
+    picar.left()
+    time.sleep(1)
+    picar.straight()
+    time.sleep(1)
+    picar.right()
+    time.sleep(1)
+    picar.stop()
+    time.sleep(1)
+
+def test_general():
+    test_camera()
+    test_action()
