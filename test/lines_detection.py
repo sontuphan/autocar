@@ -11,6 +11,9 @@ def test_by_slope_sign():
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                np.array([]), minLineLength=100, maxLineGap=100)
+        if hough is None:
+            print("Stop the car")
+            return
         lines = line.merge_by_slope_sign(hough)
         lines = line.slopes_to_points(frame, lines)
         cv_lines = visualization.draw_lines_in_frame(frame, lines)
@@ -33,6 +36,9 @@ def test_by_kmeans():
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                np.array([]), minLineLength=100, maxLineGap=100)
+        if hough is None:
+            print("Stop the car")
+            return
         lines = line.merge_by_kmeans(hough)
         lines = line.slopes_to_points(frame, lines)
         lines = line.colapse_neighbours(500, lines)
