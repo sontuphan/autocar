@@ -6,7 +6,9 @@ from libs import line, visualization, rl
 def test_by_slope_sign():
     cap = cv.VideoCapture("data/autocar.mp4")
     while cap.isOpened():
-        frame = cap.read()[1]
+        ret, frame = cap.read()
+        if ret is not True:
+            break
         canny = visualization.cannize(frame, 15)
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
@@ -22,16 +24,15 @@ def test_by_slope_sign():
         cv.imshow("Slope Sign", output)
 
         if cv.waitKey(10) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-    cv.destroyAllWindows()
+            cap.release()
 
 
 def test_by_kmeans():
     cap = cv.VideoCapture("data/realrun3.mp4")
     while cap.isOpened():
-        frame = cap.read()[1]
+        ret, frame = cap.read()
+        if ret is not True:
+            break
         canny = visualization.cannize(frame, 15)
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
@@ -48,7 +49,4 @@ def test_by_kmeans():
         cv.imshow("Kmeans", output)
 
         if cv.waitKey(10) & 0xFF == ord('q'):
-            break
-
-    cap.release()
-    cv.destroyAllWindows()
+            cap.release()
