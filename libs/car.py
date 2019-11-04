@@ -2,7 +2,6 @@ import cv2 as cv
 import threading
 import time
 import requests
-import numpy as np
 from queue import Queue
 
 
@@ -11,12 +10,17 @@ class Car:
         self.host = host
         self.stream_port = 8080
         self.cmd_port = 8000
+        self.LEVEL_SPEED = [0, 40, 50, 60, 70, 80, 90, 100]
+        self.speed(1)
 
     def get_stream_url(self):
         return self.host + ":" + str(self.stream_port) + '/?action=stream'
 
-    def get_cmd_url(self, action):
+    def get_action_url(self, action):
         return self.host + ":" + str(self.cmd_port) + '/run/?action=' + action
+
+    def get_speed_url(self, speed):
+        return self.host + ":" + str(self.cmd_port) + '/run/?speed=' + str(speed)
 
     def play(self, q, sec):
         while True:
@@ -53,6 +57,10 @@ class Car:
         buffer_thread.start()
         return q
 
+    def speed(self, level):
+        speed_url = self.get_speed_url(self.LEVEL_SPEED[level])
+        requests.get(speed_url)
+
     def start(self):
         self.run_action("forward")
 
@@ -71,5 +79,5 @@ class Car:
     def run_action(self, action):
         # bwready | forward | backward | stop
         # fwready | fwleft | fwright |  fwstraight
-        url = self.get_cmd_url(action)
+        url = self.get_action_url(action)
         requests.get(url)

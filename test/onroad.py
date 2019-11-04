@@ -7,9 +7,10 @@ def test():
     HOST = "http://172.31.0.29"
     picar = car.Car(HOST)
     # Setup Markov Decision Process
-    mdp = rl.MDP(0.1, picar, True)
+    mdp = rl.MDP(0.1, picar, 2)
 
     picar.start()
+    picar.speed(2)
 
     prev_state = None
     prev_action = None
@@ -34,4 +35,4 @@ def test():
         prev_action = next_action
         prev_value = value
         # Learning step
-        time.sleep(0.5)
+        time.sleep(0.2)

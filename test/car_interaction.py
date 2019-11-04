@@ -18,6 +18,7 @@ def test_snapshot():
         plt.show(block=False)
         plt.pause(0.01)
 
+
 def test_action():
     picar.start()
     time.sleep(1)
@@ -28,7 +29,15 @@ def test_action():
     picar.right()
     time.sleep(1)
     picar.stop()
-    time.sleep(1)
+
+
+def test_speed():
+    picar.start()
+    time.sleep(3)
+    picar.speed(4)
+    time.sleep(3)
+    picar.stop()
+
 
 def test_general():
     test_camera()

@@ -10,6 +10,7 @@ def main():
     # car_interaction.test_camera()
     # car_interaction.test_snapshot()
     # car_interaction.test_action()
+    # car_interaction.test_speed()
     # car_interaction.test_general()
 
     onroad.test()

@@ -24,7 +24,11 @@ def angle(v1, v2):
 
 class MDP:
 
-    def __init__(self, discount, agent, debug=False):
+    # debug mode
+    # 0: turn off
+    # 1: canny debug
+    # 2: lines detection debug
+    def __init__(self, discount, agent, debug=0):
 
         self.event_matrix = np.zeros((6, 6, 3), dtype=int)
         self.value_vector = np.zeros(6, dtype=int)
@@ -32,6 +36,7 @@ class MDP:
         self.num_of_actions = np.array([plane.sum()
                                         for plane in self.event_matrix]).sum()
 
+        self.noise_rejection = 11
         self.discount = discount
         self.agent = agent
         self.stream = agent.get_snapshot()
@@ -53,8 +58,8 @@ class MDP:
         return discretization
 
     def get_state(self, frame):
-        canny = visualization.cannize(frame, 11)
-        if self.debug is True:
+        canny = visualization.cannize(frame, self.noise_rejection)
+        if self.debug == 1:
             cv.imshow("Debug", canny)
             cv.waitKey(10)
         segment = visualization.cut_the_horizon(canny)
@@ -64,7 +69,7 @@ class MDP:
         if hough is None:
             print("Stoped the car")
             self.agent.stop()
-            if self.debug is True:
+            if self.debug != 0:
                 cv.destroyWindow("Debug")
             sys.exit()
 
@@ -72,6 +77,11 @@ class MDP:
         lines = line.slopes_to_points(frame, lines)
         # 500: Euler distance in hyperlane
         lines = line.colapse_neighbours(500, lines)
+        if self.debug == 2:
+            cv_lines = visualization.draw_lines_in_frame(frame, lines)
+            output = cv.addWeighted(frame, 0.9, cv_lines, 1, 1)
+            cv.imshow("Debug", output)
+            cv.waitKey(10)
         lines = line.points_to_slopes(lines)
         left, right = lines
         vectors = None
@@ -87,6 +97,7 @@ class MDP:
         degree = np.degrees(radian)
         state = self.discretize(degree)
         return state
+
     def get_action(self, current_state):
         next_action = -1
         max_value = 0
