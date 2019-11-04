@@ -52,8 +52,8 @@ class MDP:
 
     def get_state(self, frame):
         canny = visualization.cannize(frame, 11)
-        cv.imshow("Debug", canny)
-        cv.waitKey(10)
+        # cv.imshow("Debug", canny)
+        # cv.waitKey(10)
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                np.array([]), minLineLength=100, maxLineGap=100)
@@ -61,7 +61,7 @@ class MDP:
         if hough is None:
             print("Stoped the car")
             self.agent.stop()
-            cv.destroyWindow("Debug")
+            # cv.destroyWindow("Debug")
             sys.exit()
 
         lines = line.merge_by_kmeans(hough)
