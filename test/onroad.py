@@ -35,4 +35,4 @@ def test():
         prev_action = next_action
         prev_value = value
         # Learning step
-        time.sleep(0.2)
+        time.sleep(0.5)

@@ -30,8 +30,12 @@ class MDP:
     # 2: lines detection debug
     def __init__(self, discount, agent, debug=0):
 
-        self.event_matrix = np.zeros((6, 6, 3), dtype=int)
-        self.value_vector = np.zeros(6, dtype=int)
+        self.scale = 15
+        self.dimension = int(180/self.scale+1)
+
+        self.event_matrix = np.zeros(
+            (self.dimension, self.dimension, 3), dtype=int)
+        self.value_vector = np.zeros(self.dimension, dtype=int)
         self.load_model()
         self.num_of_actions = np.array([plane.sum()
                                         for plane in self.event_matrix]).sum()
@@ -41,7 +45,7 @@ class MDP:
         self.agent = agent
         self.stream = agent.get_snapshot()
 
-        self.STATES = [0, 30, 60, 90, 120, 150]
+        self.STATES = np.arange(0, self.dimension)
         self.ACTIONS = [-1, 0, 1]
 
         self.debug = debug
@@ -51,9 +55,9 @@ class MDP:
 
     def discretize(self, degree):
         discretization = 0
-        for i in np.arange(0, 9):
-            if(degree < i*30):
-                discretization = (i-1)*30
+        for i in np.arange(0, self.dimension):
+            if(degree < i*self.scale):
+                discretization = (i-1)*self.scale
                 break
         return discretization
 
@@ -117,9 +121,9 @@ class MDP:
         return 180 - state
 
     def get_prob(self, current_state, next_action, next_state):
-        cs = int(current_state/30)
+        cs = int(current_state/self.scale)
         na = next_action + 1
-        ns = int(next_state/30)
+        ns = int(next_state/self.scale)
         cs_na_ns = self.event_matrix[cs, ns, na] + 1
         cs_na = len(self.STATES)
         for row in self.event_matrix[cs]:
@@ -127,14 +131,15 @@ class MDP:
         return cs_na_ns/cs_na
 
     def learn(self, prev_state, prev_action, prev_value, current_state):
-        ps = int(prev_state/30)
+        ps = int(prev_state/self.scale)
         pa = prev_action+1
-        cs = int(current_state/30)
+        cs = int(current_state/self.scale)
         self.value_vector[ps] = prev_value
         self.event_matrix[ps, cs, pa] += 1
         self.save_model()
 
     def save_model(self):
+        print(self.value_vector)
         np.save("event_matrix.npy", self.event_matrix)
         np.save("value_vector.npy", self.value_vector)
 
