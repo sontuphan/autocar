@@ -1,6 +1,6 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
-from libs import car, utils
+from libs import car
 import time
 
 HOST = "http://172.31.0.29"

@@ -2,6 +2,8 @@ import cv2 as cv
 import math
 import numpy as np
 from libs import line, visualization
+import sys
+from pathlib import Path
 
 
 def dotproduct(v1, v2):
@@ -22,20 +24,23 @@ def angle(v1, v2):
 
 class MDP:
 
-    def __init__(self, discount,  stream):
+    def __init__(self, discount, agent):
+
         self.event_matrix = np.zeros((6, 6, 3), dtype=int)
         self.value_vector = np.zeros(6, dtype=int)
+        self.load_model()
+        self.num_of_actions = np.array([plane.sum()
+                                        for plane in self.event_matrix]).sum()
 
         self.discount = discount
-        self.stream = stream
+        self.agent = agent
+        self.stream = agent.get_snapshot()
 
         self.STATES = [0, 30, 60, 90, 120, 150]
         self.ACTIONS = [-1, 0, 1]
 
     def extract_frame(self):
-        if self.stream.isOpened():
-            return self.stream.read()[1]
-        return None
+        return self.stream.get()
 
     def discretize(self, degree):
         discretization = 0
@@ -46,10 +51,19 @@ class MDP:
         return discretization
 
     def get_state(self, frame):
-        canny = visualization.cannize(frame, 15)
+        canny = visualization.cannize(frame, 11)
+        cv.imshow("Debug", canny)
+        cv.waitKey(10)
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                np.array([]), minLineLength=100, maxLineGap=100)
+
+        if hough is None:
+            print("Stoped the car")
+            self.agent.stop()
+            cv.destroyWindow("Debug")
+            sys.exit()
+
         lines = line.merge_by_kmeans(hough)
         lines = line.slopes_to_points(frame, lines)
         lines = line.colapse_neighbours(500, lines)
@@ -76,10 +90,12 @@ class MDP:
             value = self.get_reward(current_state)
             for state in self.STATES:
                 value += self.discount*self.get_prob(current_state, action,
-                                                          state)*self.value_vector[int(state/30)]
+                                                     state)*self.value_vector[int(state/30)]
             if(value >= max_value):
                 max_value = value
                 next_action = action
+            self.num_of_actions += 1
+            print(self.num_of_actions)
         return [next_action, max_value]
 
     def get_reward(self, state):
@@ -100,4 +116,17 @@ class MDP:
         pa = prev_action+1
         cs = int(current_state/30)
         self.value_vector[ps] = prev_value
-        self.event_matrix[ps, pa, cs] += 1
+        self.event_matrix[ps, cs, pa] += 1
+        self.save_model()
+
+    def save_model(self):
+        np.save("event_matrix.npy", self.event_matrix)
+        np.save("value_vector.npy", self.value_vector)
+
+    def load_model(self):
+        event_matrix = Path("event_matrix.npy")
+        if event_matrix.is_file():
+            self.event_matrix = np.load("event_matrix.npy")
+        value_vector = Path("value_vector.npy")
+        if value_vector.is_file():
+            self.value_vector = np.load("value_vector.npy")

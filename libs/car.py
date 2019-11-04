@@ -47,7 +47,7 @@ class Car:
 
     def get_snapshot(self):
         url = self.get_stream_url()
-        q = Queue(5)
+        q = Queue(2)
         stream = cv.VideoCapture(url)
         buffer_thread = threading.Thread(target=self.buffer, args=(q, stream,))
         buffer_thread.start()

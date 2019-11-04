@@ -1,15 +1,22 @@
-import cv2 as cv
+import time
 from libs import rl, car
 
 
-def test_mdp():
-    cap = cv.VideoCapture("data/realrun3.mp4")
-    mdp = rl.MDP(0.1, cap)
+def test():
+    # Setup car
+    HOST = "http://172.31.0.29"
+    picar = car.Car(HOST)
+    # Monitor
+    # picar.get_camera(24)
+    # Setup Markov Decision Process
+    mdp = rl.MDP(0.1, picar)
+
+    picar.start()
 
     prev_state = None
     prev_action = None
     prev_value = None
-    while cap.isOpened():
+    while True:
         frame = mdp.extract_frame()
         current_state = mdp.get_state(frame)
         if prev_state is not None:
@@ -17,15 +24,16 @@ def test_mdp():
         next_action, value = mdp.get_action(current_state)
         if next_action == -1:
             print("left")
+            picar.left()
         elif next_action == 0:
             print("straight")
+            picar.straight()
         else:
             print("right")
+            picar.right()
         # send cmd to car here
         prev_state = current_state
         prev_action = next_action
         prev_value = value
-
-def test_on_road():
-    HOST = "http://172.31.0.29"
-    picar = car.Car(HOST)
+        # Learning step
+        time.sleep(0.5)
