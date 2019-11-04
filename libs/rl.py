@@ -1,9 +1,9 @@
-import cv2 as cv
-import math
-import numpy as np
-from libs import line, visualization
 import sys
 from pathlib import Path
+import math
+import cv2 as cv
+import numpy as np
+from libs import line, visualization
 
 
 def dotproduct(v1, v2):
@@ -33,8 +33,6 @@ class MDP:
         self.event_matrix = np.zeros((6, 6, 3), dtype=int)
         self.value_vector = np.zeros(6, dtype=int)
         self.load_model()
-        self.num_of_actions = np.array([plane.sum()
-                                        for plane in self.event_matrix]).sum()
 
         self.noise_rejection = 11
         self.discount = discount
@@ -51,7 +49,7 @@ class MDP:
 
     def discretize(self, degree):
         discretization = 0
-        for i in np.arange(0, 9):
+        for i in np.arange(0, 7):
             if(degree < i*30):
                 discretization = (i-1)*30
                 break
@@ -109,8 +107,6 @@ class MDP:
             if(value >= max_value):
                 max_value = value
                 next_action = action
-            self.num_of_actions += 1
-            print(self.num_of_actions)
         return [next_action, max_value]
 
     def get_reward(self, state):
