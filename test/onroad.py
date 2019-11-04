@@ -7,7 +7,7 @@ def test():
     HOST = "http://172.31.0.29"
     picar = car.Car(HOST)
     # Setup Markov Decision Process
-    mdp = rl.MDP(0.1, picar, False)
+    mdp = rl.MDP(0.1, picar, True)
 
     picar.start()
 
