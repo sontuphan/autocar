@@ -6,10 +6,8 @@ def test():
     # Setup car
     HOST = "http://172.31.0.29"
     picar = car.Car(HOST)
-    # Monitor
-    # picar.get_camera(24)
     # Setup Markov Decision Process
-    mdp = rl.MDP(0.1, picar)
+    mdp = rl.MDP(0.1, picar, False)
 
     picar.start()
 

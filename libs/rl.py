@@ -24,7 +24,7 @@ def angle(v1, v2):
 
 class MDP:
 
-    def __init__(self, discount, agent):
+    def __init__(self, discount, agent, debug=False):
 
         self.event_matrix = np.zeros((6, 6, 3), dtype=int)
         self.value_vector = np.zeros(6, dtype=int)
@@ -39,6 +39,8 @@ class MDP:
         self.STATES = [0, 30, 60, 90, 120, 150]
         self.ACTIONS = [-1, 0, 1]
 
+        self.debug = debug
+
     def extract_frame(self):
         return self.stream.get()
 
@@ -52,8 +54,9 @@ class MDP:
 
     def get_state(self, frame):
         canny = visualization.cannize(frame, 11)
-        # cv.imshow("Debug", canny)
-        # cv.waitKey(10)
+        if self.debug is True:
+            cv.imshow("Debug", canny)
+            cv.waitKey(10)
         segment = visualization.cut_the_horizon(canny)
         hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                np.array([]), minLineLength=100, maxLineGap=100)
@@ -61,11 +64,13 @@ class MDP:
         if hough is None:
             print("Stoped the car")
             self.agent.stop()
-            # cv.destroyWindow("Debug")
+            if self.debug is True:
+                cv.destroyWindow("Debug")
             sys.exit()
 
         lines = line.merge_by_kmeans(hough)
         lines = line.slopes_to_points(frame, lines)
+        # 500: Euler distance in hyperlane
         lines = line.colapse_neighbours(500, lines)
         lines = line.points_to_slopes(lines)
         left, right = lines
@@ -82,7 +87,6 @@ class MDP:
         degree = np.degrees(radian)
         state = self.discretize(degree)
         return state
-
     def get_action(self, current_state):
         next_action = -1
         max_value = 0
