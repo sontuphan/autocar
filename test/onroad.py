@@ -18,7 +18,6 @@ def test():
     while True:
         frame = mdp.extract_frame()
         current_state = mdp.get_state(frame)
-        print(current_state)
         if prev_state is not None:
             mdp.learn(prev_state, prev_action, prev_value, current_state)
         next_action, value = mdp.get_action(current_state)

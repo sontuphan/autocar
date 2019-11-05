@@ -12,7 +12,7 @@ class MDP:
     # 1: canny debug
     # 2: lines detection debug
     def __init__(self, agent, debug=0):
-        self.SCALE = 30
+        self.SCALE = 15
         self.NUM_OF_STATES = int(360/self.SCALE)
         self.STATES = np.arange(0, 360, self.SCALE)
         self.ACTIONS = [-1, 0, 1]
@@ -25,7 +25,7 @@ class MDP:
         self.num_of_decisions = np.array(
             [plane.sum() for plane in self.event_matrix]).sum()
 
-        self.noise_rejection = 11
+        self.noise_rejection = 13
         self.discount = 0.1
         self.agent = agent
         self.stream = agent.get_snapshot()
@@ -38,7 +38,7 @@ class MDP:
     def discretize(self, degree):
         discretization = 0
         degree = round(degree)
-        for i in np.arange(0, self.NUM_OF_STATES+1):
+        for i in np.arange(0, self.NUM_OF_STATES + 1):
             if(degree < i*self.SCALE):
                 discretization = (i-1)*self.SCALE
                 break
@@ -90,7 +90,8 @@ class MDP:
     def get_action(self, current_state):
         next_action = -1
         max_value = 0
-        if self.num_of_decisions <= 100:
+        # Randomize the init data
+        if self.num_of_decisions <= 300:
             rand_act = util.random(self.NUM_OF_ACTIONS-1)
             action = self.ACTIONS[rand_act]
             value = self.get_reward(current_state)
@@ -99,6 +100,7 @@ class MDP:
                                                      state)*self.value_vector[int(state/self.SCALE)]
             max_value = value
             next_action = action
+        # Start to learn
         else:
             for action in self.ACTIONS:
                 value = self.get_reward(current_state)
@@ -129,7 +131,7 @@ class MDP:
 
     def learn(self, prev_state, prev_action, prev_value, current_state):
         ps = int(prev_state/self.SCALE)
-        pa = prev_action+1
+        pa = prev_action + 1
         cs = int(current_state/self.SCALE)
         self.value_vector[ps] = prev_value
         self.event_matrix[ps, cs, pa] += 1
