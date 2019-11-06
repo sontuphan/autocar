@@ -25,7 +25,8 @@ class MDP:
         self.num_of_decisions = np.array(
             [plane.sum() for plane in self.event_matrix]).sum()
 
-        self.noise_rejection = 13
+        self.noise_rejection = 15
+        self.error_tolerant = 20
         self.discount = 0.1
         self.agent = agent
         self.stream = agent.get_snapshot()
@@ -44,16 +45,25 @@ class MDP:
                 break
         return discretization
 
-    def get_state(self, frame):
-        canny = visualization.cannize(frame, self.noise_rejection)
-        if self.debug == 1:
-            cv.imshow("Debug", canny)
-            cv.waitKey(10)
-        segment = visualization.cut_the_horizon(canny)
-        hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
-                               np.array([]), minLineLength=100, maxLineGap=100)
+    def get_state(self):
+        error = 0
+        while error < self.error_tolerant:
+            frame = self.extract_frame()
+            canny = visualization.cannize(frame, self.noise_rejection)
+            if self.debug == 1:
+                cv.imshow("Debug", canny)
+                cv.waitKey(10)
+            segment = visualization.cut_the_horizon(canny)
+            hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
+                                   np.array([]), minLineLength=100, maxLineGap=100)
 
-        if hough is None:
+            if hough is None:
+                print("Stop coundown:", error)
+                error += 1
+            else:
+                break
+
+        if error >= self.error_tolerant:
             print("Stoped the car")
             self.agent.stop()
             if self.debug != 0:
