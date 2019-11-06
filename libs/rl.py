@@ -62,7 +62,7 @@ class MDP:
 
         lines = line.merge_by_kmeans(hough)
         lines = line.slopes_to_points(frame, lines)
-        # 300: Euler distance in hyperlane
+        # 300: Euler distance in hyperplane
         lines = line.colapse_neighbours(300, lines)
         if self.debug == 2:
             cv_lines = visualization.draw_lines_in_frame(frame, lines)
@@ -93,7 +93,7 @@ class MDP:
         # Randomize the init data
         if self.num_of_decisions <= 900:
             rand_act = util.random(self.NUM_OF_ACTIONS-1)
-            action = self.ACTIONS[1]
+            action = self.ACTIONS[rand_act]
             value = self.get_reward(current_state)
             for state in self.STATES:
                 value += self.discount*self.get_prob(current_state, action,
