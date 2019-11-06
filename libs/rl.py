@@ -91,8 +91,8 @@ class MDP:
         next_action = -1
         max_value = 0
         # Randomize the init data
-        if self.num_of_decisions <= 3000:
-            action = self.ACTIONS[2]
+        if self.num_of_decisions <= 4000:
+            action = self.ACTIONS[0]
             # rand_act = util.random(self.NUM_OF_ACTIONS-1)
             # action = self.ACTIONS[rand_act]
             value = self.get_reward(current_state)
