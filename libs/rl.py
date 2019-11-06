@@ -53,7 +53,8 @@ class MDP:
             if self.debug == 1:
                 cv.imshow("Debug", canny)
                 cv.waitKey(10)
-            segment = visualization.cut_the_horizon(canny)
+            # segment = visualization.cut_the_horizon(canny)
+            segment = canny
             hough = cv.HoughLinesP(segment, 1, np.pi / 180, 50,
                                    np.array([]), minLineLength=100, maxLineGap=100)
 

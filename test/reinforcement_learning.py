@@ -10,8 +10,7 @@ def test_mdp():
     prev_action = None
     prev_value = None
     while cap.isOpened():
-        frame = mdp.extract_frame()
-        current_state = mdp.get_state(frame)
+        current_state = mdp.get_state()
         if prev_state is not None:
             mdp.learn(prev_state, prev_action, prev_value, current_state)
         next_action, value = mdp.get_action(current_state)
@@ -25,7 +24,3 @@ def test_mdp():
         prev_state = current_state
         prev_action = next_action
         prev_value = value
-
-def test_on_road():
-    HOST = "http://172.31.0.29"
-    picar = car.Car(HOST)
