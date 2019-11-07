@@ -79,7 +79,8 @@ def colapse_neighbours(max_norm, lines):
 def interpolate_lines(frame, lines):
     line_1, line_2 = lines
     if len(line_2) == 0:
-        return np.array([line_1, simulated_line(frame, line_1)])
+        # return np.array([line_1, simulated_line(frame, line_1)])
+        return np.array([line_1, line_1])
     else:
         return lines
 
