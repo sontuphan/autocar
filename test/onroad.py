@@ -10,7 +10,7 @@ def test():
     mdp = rl.MDP(picar, 2)
 
     picar.start()
-    picar.speed(1)
+    picar.speed(7)
 
     prev_state = None
     prev_action = None

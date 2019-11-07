@@ -76,9 +76,24 @@ def colapse_neighbours(max_norm, lines):
     return lines
 
 
+def interpolate_lines(frame, lines):
+    line_1, line_2 = lines
+    if len(line_2) == 0:
+        return np.array([line_1, simulated_line(frame, line_1)])
+    else:
+        return lines
+
+
 def symmetrize(line):
     if len(line) == 0:
         return np.array([])
     slope, intercept = line
     slope = -slope
     return [slope, intercept]
+
+
+def simulated_line(frame, line):
+    height = frame.shape[0]
+    width = frame.shape[1]
+    x_1, y_1, x_2, y_2 = line.reshape(4)
+    return np.array([int(width/2), height, x_2, y_2])

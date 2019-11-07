@@ -26,7 +26,7 @@ class MDP:
             [plane.sum() for plane in self.event_matrix]).sum()
 
         self.noise_rejection = 15
-        self.error_tolerant = 100
+        self.error_tolerant = 60
         self.discount = 0.1
         self.agent = agent
         self.stream = agent.get_snapshot()
@@ -59,12 +59,12 @@ class MDP:
 
             if hough is None:
                 print("Stop coundown:", error)
-                if error > int(self.error_tolerant/3):
-                    self.agent.back()
-                    self.agent.left()
                 if error > int(2*self.error_tolerant/3):
                     self.agent.back()
                     self.agent.right()
+                elif error > int(self.error_tolerant/3):
+                    self.agent.back()
+                    self.agent.left()
                 error += 1
             else:
                 self.agent.start()
@@ -81,25 +81,18 @@ class MDP:
         lines = line.slopes_to_points(frame, lines)
         # 300: Euler distance in hyperplane
         lines = line.colapse_neighbours(300, lines)
+        lines = line.interpolate_lines(frame, lines)
+
         if self.debug == 2:
             cv_lines = visualization.draw_lines_in_frame(frame, lines)
             output = cv.addWeighted(frame, 0.9, cv_lines, 1, 1)
             cv.imshow("Debug", output)
             cv.waitKey(10)
-        lines = line.points_to_slopes(lines)
-        left, right = lines
-        vectors = None
-        if len(left) == 0:
-            vectors = [right, right]
-        elif len(right) == 0:
-            vectors = [left, left]
-        else:
-            vectors = [left, right]
-        v1, v2 = line.slopes_to_points(frame, vectors)
 
+        line_1, line_2 = lines
         base_vector = [0, 0, -1, 0]
-        degree1 = util.angle(base_vector, v1)
-        degree2 = util.angle(base_vector, v2)
+        degree1 = util.angle(base_vector, line_1)
+        degree2 = util.angle(base_vector, line_2)
         degree = degree1 + degree2
         state = self.discretize(degree)
         return state
