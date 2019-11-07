@@ -64,6 +64,9 @@ class Car:
     def start(self):
         self.run_action("forward")
 
+    def back(self):
+        self.run_action("backward")
+
     def stop(self):
         self.run_action("stop")
 

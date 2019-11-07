@@ -26,7 +26,7 @@ class MDP:
             [plane.sum() for plane in self.event_matrix]).sum()
 
         self.noise_rejection = 15
-        self.error_tolerant = 20
+        self.error_tolerant = 100
         self.discount = 0.1
         self.agent = agent
         self.stream = agent.get_snapshot()
@@ -59,8 +59,15 @@ class MDP:
 
             if hough is None:
                 print("Stop coundown:", error)
+                if error > int(self.error_tolerant/3):
+                    self.agent.back()
+                    self.agent.left()
+                if error > int(2*self.error_tolerant/3):
+                    self.agent.back()
+                    self.agent.right()
                 error += 1
             else:
+                self.agent.start()
                 break
 
         if error >= self.error_tolerant:
