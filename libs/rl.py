@@ -32,6 +32,7 @@ class MDP:
         self.stream = agent.get_snapshot()
 
         self.debug = debug
+        self.status = None # true/forward, false/backward
 
     def extract_frame(self):
         return self.stream.get()
@@ -60,14 +61,17 @@ class MDP:
             if hough is None:
                 print("Stop coundown:", error)
                 if error > int(2*self.error_tolerant/3):
-                    self.agent.back()
+                    if self.status is not False:
+                        self.agent.back()
                     self.agent.right()
                 elif error > int(self.error_tolerant/3):
-                    self.agent.back()
+                    if self.status is not False:
+                        self.agent.back()
                     self.agent.left()
                 error += 1
             else:
-                self.agent.start()
+                if self.status is not True:
+                    self.agent.start()
                 break
 
         if error >= self.error_tolerant:
