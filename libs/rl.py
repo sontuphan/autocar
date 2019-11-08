@@ -26,13 +26,13 @@ class MDP:
             [plane.sum() for plane in self.event_matrix]).sum()
 
         self.noise_rejection = 15
-        self.error_tolerant = 60
+        self.error_tolerant = 120
         self.discount = 0.1
         self.agent = agent
         self.stream = agent.get_snapshot()
 
         self.debug = debug
-        self.status = None # true/forward, false/backward
+        self.status = None  # true/forward, false/backward
 
     def extract_frame(self):
         return self.stream.get()
@@ -60,14 +60,17 @@ class MDP:
 
             if hough is None:
                 print("Stop coundown:", error)
-                if error > int(2*self.error_tolerant/3):
-                    if self.status is not False:
-                        self.agent.back()
-                    self.agent.right()
-                elif error > int(self.error_tolerant/3):
+                if error > int(3*self.error_tolerant/4):
                     if self.status is not False:
                         self.agent.back()
                     self.agent.left()
+                elif error > int(self.error_tolerant/4):
+                    if self.status is not False:
+                        self.agent.back()
+                    self.agent.right()
+                else:
+                    if self.status is not True:
+                        self.agent.straight()
                 error += 1
             else:
                 if self.status is not True:
